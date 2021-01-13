@@ -1,0 +1,120 @@
+#!/bin/bash
+echo 'I am going to download 1080p,720p, and SD resolutions in the current directory, press ctl+c to stop me'
+echo 'I am stupid btw, I think all shows have 1080p versions, bug shitstemxd for one that can figure when he isnt busy'
+read -p 'nbc nightly news link: ' link
+youtube-dl --all-subs --convert-subs srt $link --output 1080p
+youtube-dl -f 'bestvideo[height<=720]+bestaudio/best[height<=720]' --all-subs --convert-subs srt $link --output 720p
+youtube-dl -f 'bestvideo[height<=576]+bestaudio/best[height<=576]' --all-subs --convert-subs srt $link --output SD
+
+SUB1=1080p.en.srt
+if [ -f "$SUB1" ]; then
+    mkvmerge -o sub.1080p.mkv 1080p --language 0:eng 1080p.en.srt
+fi
+SUB2=720p.en.srt
+if [ -f "$SUB2" ]; then
+    mkvmerge -o sub.720p.mkv 720p --language 0:eng 720p.en.srt
+fi
+SUB3=SD.en.srt
+if [ -f "$SUB3" ]; then
+    mkvmerge -o sub.SD.mkv SD --language 2:eng SD.en.srt
+fi
+SUB4=sub.1080p.mkv
+if [ -f "$SUB4" ]; then
+    mkvpropedit sub.1080p.mkv --edit track:3 --set flag-default=0
+fi
+SUB5=sub.720p.mkv
+if [ -f "$SUB5" ]; then
+    mkvpropedit sub.720p.mkv --edit track:3 --set flag-default=0
+fi
+SUB6=sub.SD.mkv
+if [ -f "$SUB6" ]; then
+    mkvpropedit sub.SD.mkv --edit track:3 --set flag-default=0
+fi
+FIN1=1080p
+if [ -f "$FIN1" ]; then
+    mkvmerge -o nosub.1080p.mkv 1080p
+fi
+FIN2=720p
+if [ -f "$FIN2" ]; then
+    mkvmerge -o nosub.720p.mkv 720p
+fi
+FIN3=SD
+if [ -f "$FIN3" ]; then
+    mkvmerge -o nosub.SD.mkv SD
+fi
+FILE4=sub.1080p.mkv
+if [ -f "$FILE4" ]; then
+    rm nosub.1080p.mkv
+fi
+FILE5=sub.720p.mkv
+if [ -f "$FILE5" ]; then
+    rm nosub.720p.mkv
+fi
+FILE6=sub.SD.mkv
+if [ -f "$FILE6" ]; then
+    rm nosub.SD.mkv
+fi
+FILE7=nosub.1080p.mkv
+if [ -f "$FILE7" ]; then
+    mv nosub.1080p.mkv 1080p.mkv
+fi
+FILE8=nosub.720p.mkv
+if [ -f "$FILE8" ]; then
+    mv nosub.720p.mkv 720p.mkv
+fi
+FILE9=nosub.SD.mkv
+if [ -f "$FILE9" ]; then
+    mv nosub.SD.mkv SD.mkv
+fi
+FILE10=sub.1080p.mkv
+if [ -f "$FILE10" ]; then
+    mv sub.1080p.mkv 1080p.mkv
+fi
+FILE11=sub.720p.mkv
+if [ -f "$FILE11" ]; then
+    mv sub.720p.mkv 720p.mkv
+fi
+FILE12=sub.SD.mkv
+if [ -f "$FILE12" ]; then
+    mv sub.SD.mkv SD.mkv
+fi
+echo 'When I ask for First part filename, I want <NBC.Nightly.News.2021.01.06>, not the resolution, codec, or group'
+echo 'This is because this command generates 1080p, 720p, and SD resolutions. I need to split first and last part as resolutions is handled automatically'
+echo 'press ctl+c and bug shitstemxd if you dont know what I just said'
+read -p 'First part of filename: ' firstfilename
+#
+#echo 'I cant set metatitle yet. Ask the retard who gave u this to add suppoat later if u think it useful. Anything entered will do nothing dw so hit enter'
+#read -p 'metatitle-not-implamented-yet: ' metatitle
+#
+mediainfo 1080p.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <1080p.NBC.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename 1080p: ' lastfilename1080p
+#
+mediainfo 720p.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <720p.NBC.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename 720p: ' lastfilename720p
+#
+mediainfo SD.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <NBC.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename SD: ' lastfilenameSD
+mv 1080p.mkv $firstfilename.$lastfilename1080p.mkv
+mv 720p.mkv $firstfilename.$lastfilename720p.mkv
+mv SD.mkv $firstfilename.$lastfilenameSD.mkv
+rm ~/working/1080* ~/working/720* ~/working/SD*
+mediainfo $firstfilename.$lastfilename1080p.mkv > mediainfo.$firstfilename.$lastfilename1080p.txt
+mediainfo $firstfilename.$lastfilename720p.mkv > mediainfo.$firstfilename.$lastfilename720p.txt
+mediainfo $firstfilename.$lastfilenameSD.mkv > mediainfo.$firstfilename.$lastfilenameSD.txt
+
+echo 'go grab your announce url from the btn page, I can make it know this but right now it doesnt as I dont know your announce url'
+read -p 'announceurl: ' announce
+rm ~/1080p.torrent
+rm ~/720p.torrent
+rm ~/SD.torrent
+echo 'I am putting the three .torrent files in your home directory'
+mktorrent -p -s BTN -a $announce -l 21 $firstfilename.$lastfilename1080p.mkv -o ~/nbc-1080p.torrent
+mktorrent -p -s BTN -a $announce -l 21 $firstfilename.$lastfilename720p.mkv -o ~/nbc-720p.torrent
+mktorrent -p -s BTN -a $announce -l 19 $firstfilename.$lastfilenameSD.mkv -o ~/nbc-SD.torrent
+echo 'If you see those 3 files and it didnt error out ask systemxd to make this autoload in your client next time'
+cp ~/nbc-1080p.torrent ~/qwatch
+cp ~/nbc-720p.torrent ~/qwatch
+cp ~/nbc-SD.torrent ~/qwatch
