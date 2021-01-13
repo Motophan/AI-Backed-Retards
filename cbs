@@ -114,7 +114,7 @@ read -p 'announceurl: ' announce
 rm ~/cbs-1080p.torrent
 rm ~/cbs-720p.torrent
 rm ~/cbs-SD.torrent
-rm ~/working/1080* ~/working/720* ~/bin/SD*
+rm ~/working/1080* ~/working/720* ~/working/SD*
 echo 'I am putting the three .torrent files in your home directory'
 mktorrent -p -s BTN -a $announce -l 21 $firstfilename.$lastfilename1080p.mkv -o ~/cbs-1080p.torrent
 mktorrent -p -s BTN -a $announce -l 21 $firstfilename.$lastfilename720p.mkv -o ~/cbs-720p.torrent
