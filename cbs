@@ -5,11 +5,15 @@ echo 'I am going to download 1080p, 720p, and SD resolutions in the current dire
 echo 'I am stupid btw, I think all shows have 1080p versions, bug shitstemxd for one that can figure when he isnt busy'
 read -p 'cbs nightly news link: ' link
 echo 'paste in the highest http-XXXX for best bitrate. I am dumb so I cant parse yet'
-youtube-dl -F $link
-read -p 'best http-XXXX: ' best1080p
-youtube-dl -f $best1080p --all-subs --convert-subs srt --merge-output-format mkv $link --output 1080p
-youtube-dl -f 'bestvideo[height<=720]+bestaudio/best[height<=720]' --all-subs --convert-subs srt --merge-output-format mkv $link --output 720p
-youtube-dl -f 'bestvideo[height<=576]+bestaudio/best[height<=576]' --all-subs --convert-subs srt --merge-output-format mkv $link --output SD
+echo 'Listen, this is important. If you see error 401 m3 forbidden this is a non usa ip. If you see this on the next step ctl+c me and grab a proxy on https://www.us-proxy.org/'
+read -p 'type "--proxy 123.123.123.123:1234" without quotes if you need, leave blank if you dont see 401 Forbidden : ' proxy
+youtube-dl $proxy -F $link
+read -p 'best 1080p http-XXXX: ' best1080p
+read -p 'best 720p http-XXXX: ' best720p
+read -p 'best SD http-XXXX: ' bestSD
+youtube-dl $proxy -f $best1080p --all-subs --convert-subs srt --merge-output-format mkv $link --output 1080p
+youtube-dl $proxy -f $best720p --all-subs --convert-subs srt --merge-output-format mkv $link --output 720p
+youtube-dl $proxy -f $bestSD --all-subs --convert-subs srt --merge-output-format mkv $link --output SD
 
 SUB1=1080p.en.srt
 if [ -f "$SUB1" ]; then
