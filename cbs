@@ -17,15 +17,15 @@ youtube-dl $proxy -f $bestSD --all-subs --convert-subs srt --merge-output-format
 
 SUB1=1080p.en.srt
 if [ -f "$SUB1" ]; then
-    mkvmerge -o sub.1080p.mkv 1080p.mp4 --language 0:eng 1080p.en.srt
+    mkvmerge -o sub.1080p.mkv 1080p --language 0:eng 1080p.en.srt
 fi
 SUB2=720p.en.srt
 if [ -f "$SUB2" ]; then
-    mkvmerge -o sub.720p.mkv 720p.mp4 --language 0:eng 720p.en.srt
+    mkvmerge -o sub.720p.mkv 720p --language 0:eng 720p.en.srt
 fi
 SUB3=SD.en.srt
 if [ -f "$SUB3" ]; then
-    mkvmerge -o sub.SD.mkv SD.mp4 --language 2:eng SD.en.srt
+    mkvmerge -o sub.SD.mkv SD --language 2:eng SD.en.srt
 fi
 SUB4=sub.1080p.mkv
 if [ -f "$SUB4" ]; then
