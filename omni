@@ -1,0 +1,71 @@
+echo 'I am making the collowing assumptions. 1- your watch folder is ~/qwatch. 2- you are in ~/working, and 3- qbittorrent ~/qwatch folder is set to ~/working'
+echo 'If these are not true, please ctl + c this program and set this, or edit this program'
+echo 'I am going to download 1080p, 720p, and SD resolutions in the current directory, press ctl+c to stop me'
+echo 'I am stupid btw, I think all shows have 1080p versions, bug shitstemxd for one that can figure when he isnt busy'
+echo 'This script does everything at once, all shows TEPES runs daily. Run the OMNI script if you need a specific show.'
+
+
+
+echo 'https://www.cbsnews.com/evening-news/full-episodes/'
+read -p 'cbs nightly news link: ' cbseveningnewslink
+echo 'paste in the highest http-XXXX for best bitrate. I am dumb so I cant parse yet'
+echo 'Listen, this is important. If you see error 401 m3 forbidden this is a non usa ip. If you see this on the next step ctl+c me and grab a proxy on https://www.us-proxy.org/'
+read -p 'type "--proxy 123.123.123.123:1234" without quotes if you need, leave blank if you dont see 401 Forbidden : ' proxy
+youtube-dl $proxy -F $cbseveningnewslink
+read -p 'best 1080p http-XXXX: ' cbsevningnewsbest1080p
+read -p 'best 720p http-XXXX: ' cbsevningnewsbest720p
+read -p 'best SD http-XXXX: ' cbsevningnewsbestSD
+
+youtube-dl $proxy -f $cbsevningnewsbest1080p --all-subs --convert-subs srt --merge-output-format mkv $link --output cbseveningnews1080p
+youtube-dl $proxy -f $cbsevningnewsbest720p --all-subs --convert-subs srt --merge-output-format mkv $link --output cbseveningnews720p
+youtube-dl $proxy -f $cbsevningnewsbestSD --all-subs --convert-subs srt --merge-output-format mkv $link --output cbseveningnewsSD
+
+CBSSUB1=cbseveningnews1080p.en.srt
+if [ -f "$CBSSUB1" ]; then
+    mkvmerge -o cbseveningnews1080p.mkv cbseveningnews1080p --language 0:eng cbseveningnews1080p.en.srt
+    mkvmerge -o cbseveningnews720p.mkv cbseveningnews720p --language 0:eng cbseveningnews720p.en.srt
+    mkvmerge -o cbseveningnewsSD.mkv cbseveningnewsSD --language 0:eng cbseveningnewsSD.en.srt
+else 
+     mkvmerge -o cbseveningnews1080p.mkv cbseveningnews1080p
+     mkvmerge -o cbseveningnews720p.mkv cbseveningnews720p
+     mkvmerge -o cbseveningnewsSD.mkv cbseveningnewsSD
+fi
+echo 'When I ask for First part filename, I want <CBS.Evening.News.2021.01.12>, not the resolution, codec, or group'
+echo 'This is because this command generates 1080p, 720p, and SD resolutions. I need to split first and last part as resolutions is handled automatically'
+echo 'press ctl+c and bug shitstemxd if you dont know what I just said'
+read -p 'First part of filename: ' firstfilename
+
+mediainfo cbseveningnews1080p.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <1080p.CBS.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename 1080p: ' lastfilename1080p
+#
+mediainfo cbseveningnews720p.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <720p.CBS.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename 720p: ' lastfilename720p
+#
+mediainfo cbseveningnewsSD.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <CBS.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename SD: ' lastfilenameSD
+mv cbseveningnews1080p.mkv $firstfilename.$lastfilename1080p.mkv
+mv cbseveningnews720p.mkv $firstfilename.$lastfilename720p.mkv
+mv cbseveningnewsSD.mkv $firstfilename.$lastfilenameSD.mkv
+mediainfo $firstfilename.$lastfilename1080p.mkv > mediainfo.$firstfilename.$lastfilename1080p.txt
+mediainfo $firstfilename.$lastfilename720p.mkv > mediainfo.$firstfilename.$lastfilename720p.txt
+mediainfo $firstfilename.$lastfilenameSD.mkv > mediainfo.$firstfilename.$lastfilenameSD.txt
+
+
+
+echo 'https://www.nbcnews.com/nightly-news'
+read -p 'cbs nightly news link: ' cbslink
+echo 'paste in the highest http-XXXX for best bitrate. I am dumb so I cant parse yet'
+echo 'Listen, this is important. If you see error 401 m3 forbidden this is a non usa ip. If you see this on the next step ctl+c me and grab a proxy on https://www.us-proxy.org/'
+read -p 'type "--proxy 123.123.123.123:1234" without quotes if you need, leave blank if you dont see 401 Forbidden : ' proxy
+youtube-dl $proxy -F $cbslink
+read -p 'best 1080p http-XXXX: ' best1080p
+read -p 'best 720p http-XXXX: ' best720p
+read -p 'best SD http-XXXX: ' bestSD
+
+
+youtube-dl $proxy -f $best1080p --all-subs --convert-subs srt --merge-output-format mkv $link --output 1080p
+youtube-dl $proxy -f $best720p --all-subs --convert-subs srt --merge-output-format mkv $link --output 720p
+youtube-dl $proxy -f $bestSD --all-subs --convert-subs srt --merge-output-format mkv $link --output SD
