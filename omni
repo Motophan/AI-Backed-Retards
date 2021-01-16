@@ -47,7 +47,7 @@ mediainfo cbseveningnewsSD.mkv
 echo 'This is the mediainfo. Now I want the last part of the filename, <CBS.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
 read -p 'Last part of filename SD: ' cbseveningnewslastfilenameSD
 
-
+ 
 mv cbseveningnews1080p.mkv $cbseveningnewsfirstfilename.$cbseveningnewslastfilename1080p.mkv
 mv cbseveningnews720p.mkv $cbseveningnewsfirstfilename.$cbseveningnewslastfilename720p.mkv
 mv cbseveningnewsSD.mkv $cbseveningnewsfirstfilename.$cbseveningnewslastfilenameSD.mkv
