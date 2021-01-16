@@ -120,10 +120,10 @@ echo 'go grab your announce url from the btn page, I can make it know this but r
 read -p 'announceurl: ' announce
 
 rm ~/nbcnightlynews-1080p.torrent ~/nbcnightlynews-720p.torrent ~/nbcnightlynews-SD.torrent
-rm ~/working/nbcnightlynews*
+rm ~/working/cbseveningnews*
 echo 'I am putting the three .torrent files in your home directory'
 mktorrent -p -s BTN -a $announce -l 21 $cbseveningnewsfirstfilename.$nbcnightlynewslastfilename1080p.mkv -o ~/cbseveningnews-1080p.torrent
-mktorrent -p -s BTN -a $announce -l 21 $cbseveningnewsfirstfilename.$cbseveningnewslastfilename720p -o ~/cbseveningnews-720p.torrent
+mktorrent -p -s BTN -a $announce -l 21 $cbseveningnewsfirstfilename.$cbseveningnewslastfilename720p.mkv -o ~/cbseveningnews-720p.torrent
 mktorrent -p -s BTN -a $announce -l 19 $cbseveningnewsfirstfilename.$cbseveningnewslastfilenameSD.mkv -o ~/cbseveningnews-SD.torrent
 echo 'If you see those 3 files and it didnt error out ask systemxd to make this autoload in your client next time'
 cp ~/cbseveningnews*.torrent ~/qwatch
@@ -131,7 +131,7 @@ cp ~/cbseveningnews*.torrent ~/qwatch
 rm ~/nbcnightlynews-1080p.torrent ~/nbcnightlynews-720p.torrent ~/nbcnightlynews-SD.torrent
 rm ~/working/nbcnightlynews*
 echo 'I am putting the three .torrent files in your home directory'
-mktorrent -p -s BTN -a $announce -l 21 $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename1080p -o ~/nbcnightlynews-1080p.torrent
+mktorrent -p -s BTN -a $announce -l 21 $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename1080p.mkv -o ~/nbcnightlynews-1080p.torrent
 mktorrent -p -s BTN -a $announce -l 21 $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename720p.mkv -o ~/nbcnightlynews-720p.torrent
 mktorrent -p -s BTN -a $announce -l 19 $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilenameSD.mkv -o ~/nbcnightlynews-SD.torrent
 echo 'If you see those 3 files and it didnt error out ask systemxd to make this autoload in your client next time'
