@@ -16,9 +16,25 @@ read -p 'best 1080p http-XXXX: ' cbsevningnewsbest1080p
 read -p 'best 720p http-XXXX: ' cbsevningnewsbest720p
 read -p 'best SD http-XXXX: ' cbsevningnewsbestSD
 
+
+echo 'https://www.nbcnews.com/nightly-news'
+read -p 'cbs nightly news link: ' nbcnightlynewslink
+echo 'paste in the highest http-XXXX for best bitrate. I am dumb so I cant parse yet'
+echo 'Listen, this is important. If you see error 401 m3 forbidden this is a non usa ip. If you see this on the next step ctl+c me and grab a proxy on https://www.us-proxy.org/'
+read -p 'type "--proxy 123.123.123.123:1234" without quotes if you need, leave blank if you dont see 401 Forbidden : ' proxy
+youtube-dl $proxy -F $nbcnightlynewslink
+read -p 'best 1080p http-XXXX: ' nbcnightlynewsbest1080p
+read -p 'best 720p http-XXXX: ' nbcnightlynewsbest720p
+read -p 'best SD http-XXXX: ' nbcnightlynewsbestSD
+
+
 youtube-dl $proxy -f $cbsevningnewsbest1080p --all-subs --convert-subs srt --merge-output-format mkv $cbseveningnewslink --output cbseveningnews1080p
 youtube-dl $proxy -f $cbsevningnewsbest720p --all-subs --convert-subs srt --merge-output-format mkv $cbseveningnewslink --output cbseveningnews720p
 youtube-dl $proxy -f $cbsevningnewsbestSD --all-subs --convert-subs srt --merge-output-format mkv $cbseveningnewslink --output cbseveningnewsSD
+
+youtube-dl $proxy -f $nbcnightlynewsbest1080p --all-subs --convert-subs srt --merge-output-format mkv $nbcnightlynewslink --output nbcnightlynews1080p
+youtube-dl $proxy -f $nbcnightlynewsbest720p --all-subs --convert-subs srt --merge-output-format mkv $nbcnightlynewslink --output nbcnightlynews720p
+youtube-dl $proxy -f $nbcnightlynewsbestSD --all-subs --convert-subs srt --merge-output-format mkv $nbcnightlynewslink --output nbcnightlynewsSD
 
 CBSSUB1=cbseveningnews1080p.en.srt
 if [ -f "$CBSSUB1" ]; then
@@ -69,6 +85,40 @@ mktorrent -p -s BTN -a $announce -l 19 $cbseveningnewsfirstfilename.$lastfilenam
 echo 'If you see those 3 files and it didnt error out ask systemxd to make this autoload in your client next time'
 cp ~/cbseveningnews*.torrent ~/qwatch
 
+NBCSUB1=nbcnightlynews1080p.en.srt
+if [ -f "$NBCSUB1" ]; then
+    mkvmerge -o nbcnightlynews1080p.mkv nbcnightlynews1080p --language 0:eng nbcnightlynews1080p.en.srt
+    mkvmerge -o nbcnightlynews720p.mkv nbcnightlynews720p --language 0:eng nbcnightlynews720p.en.srt
+    mkvmerge -o nbcnightlynewsSD.mkv nbcnightlynewsSD --language 0:eng nbcnightlynewsSD.en.srt
+else 
+    mkvmerge -o nbcnightlynews1080p.mkv nbcnightlynews1080p
+    mkvmerge -o nbcnightlynews720p.mkv nbcnightlynews720p
+    mkvmerge -o nbcnightlynewsSD.mkv nbcnightlynewsSD
+fi
+echo 'When I ask for First part filename, I want <NBC.Nightly.News.2021.01.12>, not the resolution, codec, or group'
+echo 'This is because this command generates 1080p, 720p, and SD resolutions. I need to split first and last part as resolutions is handled automatically'
+echo 'press ctl+c and bug shitstemxd if you dont know what I just said'
+read -p 'First part of filename: ' nbcnightlynewsfirstfilename
+
+mediainfo nbcnightlynews1080p.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <1080p.NBC.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename 1080p: ' nbcnightlynewslastfilename1080p
+#
+mediainfo nbcnightlynews720p.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <720p.NBC.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename 720p: ' nbcnightlynewslastfilename720p
+#
+mediainfo nbcnightlynewsSD.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <NBC.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename SD: ' nbcnightlynewslastfilenameSD
+
+ 
+mv nbcnightlynews1080p.mkv $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename1080p.mkv
+mv nbcnightlynews720p.mkv $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename720p.mkv
+mv nbcnightlynewsSD.mkv $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilenameSD.mkv
+mediainfo $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename1080p.mkv > mediainfo.$nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename1080p.txt
+mediainfo $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename720p.mkv > mediainfo.$nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename720p.txt
+mediainfo $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilenameSD.mkv > mediainfo.$nbcnightlynewsfirstfilename.$nbcnightlynewslastfilenameSD.txt
 
 rm ~/nbcnightlynews-1080p.torrent ~/nbcnightlynews-720p.torrent ~/nbcnightlynews-SD.torrent
 rm ~/working/nbcnightlynews*
@@ -79,6 +129,14 @@ mktorrent -p -s BTN -a $announce -l 19 $cbseveningnewsfirstfilename.$lastfilenam
 echo 'If you see those 3 files and it didnt error out ask systemxd to make this autoload in your client next time'
 cp ~/cbseveningnews*.torrent ~/qwatch
 
+rm ~/nbcnightlynews-1080p.torrent ~/nbcnightlynews-720p.torrent ~/nbcnightlynews-SD.torrent
+rm ~/working/nbcnightlynews*
+echo 'I am putting the three .torrent files in your home directory'
+mktorrent -p -s BTN -a $announce -l 21 $nbcnightlynewsfirstfilename.$lastfilename1080p.mkv -o ~/nbcnightlynews-1080p.torrent
+mktorrent -p -s BTN -a $announce -l 21 $nbcnightlynewsfirstfilename.$lastfilename720p.mkv -o ~/nbcnightlynews-720p.torrent
+mktorrent -p -s BTN -a $announce -l 19 $nbcnightlynewsfirstfilename.$lastfilenameSD.mkv -o ~/nbcnightlynews-SD.torrent
+echo 'If you see those 3 files and it didnt error out ask systemxd to make this autoload in your client next time'
+cp ~/nbcnightlynews*.torrent ~/qwatch
 
 
 
