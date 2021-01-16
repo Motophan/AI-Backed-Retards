@@ -51,9 +51,9 @@ read -p 'Last part of filename SD: ' cbseveningnewslastfilenameSD
 mv cbseveningnews1080p.mkv $cbseveningnewsfirstfilename.$cbseveningnewslastfilename1080p.mkv
 mv cbseveningnews720p.mkv $cbseveningnewsfirstfilename.$cbseveningnewslastfilename720p.mkv
 mv cbseveningnewsSD.mkv $cbseveningnewsfirstfilename.$cbseveningnewslastfilenameSD.mkv
-mediainfo $cbseveningnewsfirstfilename.$lastfilename1080p.mkv > mediainfo.$cbseveningnewsfirstfilename.$cbseveningnewslastfilename1080p.txt
-mediainfo $cbseveningnewsfirstfilename.$lastfilename720p.mkv > mediainfo.$cbseveningnewsfirstfilename.$cbseveningnewslastfilename720p.txt
-mediainfo $cbseveningnewsfirstfilename.$lastfilenameSD.mkv > mediainfo.$cbseveningnewsfirstfilename.$cbseveningnewslastfilenameSD.txt
+mediainfo $cbseveningnewsfirstfilename.$cbseveningnewslastfilename1080p.mkv > mediainfo.$cbseveningnewsfirstfilename.$cbseveningnewslastfilename1080p.txt
+mediainfo $cbseveningnewsfirstfilename.$cbseveningnewslastfilename720p.mkv > mediainfo.$cbseveningnewsfirstfilename.$cbseveningnewslastfilename720p.txt
+mediainfo $cbseveningnewsfirstfilename.$cbseveningnewslastfilenameSD.mkv > mediainfo.$cbseveningnewsfirstfilename.$cbseveningnewslastfilenameSD.txt
 
 
 echo 'go grab your announce url from the btn page, I can make it know this but right now it doesnt as I dont know your announce url'
@@ -63,11 +63,23 @@ read -p 'announceurl: ' announce
 rm ~/cbseveningnews-1080p.torrent ~/cbseveningnews-720p.torrent ~/cbseveningnews-SD.torrent
 rm ~/working/cbseveningnews*
 echo 'I am putting the three .torrent files in your home directory'
-mktorrent -p -s BTN -a $announce -l 21 $firstfilename.$lastfilename1080p.mkv -o ~/cbseveningnews-1080p.torrent
-mktorrent -p -s BTN -a $announce -l 21 $firstfilename.$lastfilename720p.mkv -o ~/cbseveningnews-720p.torrent
-mktorrent -p -s BTN -a $announce -l 19 $firstfilename.$lastfilenameSD.mkv -o ~/cbseveningnews-SD.torrent
+mktorrent -p -s BTN -a $announce -l 21 $cbseveningnewsfirstfilename.$lastfilename1080p.mkv -o ~/cbseveningnews-1080p.torrent
+mktorrent -p -s BTN -a $announce -l 21 $cbseveningnewsfirstfilename.$lastfilename720p.mkv -o ~/cbseveningnews-720p.torrent
+mktorrent -p -s BTN -a $announce -l 19 $cbseveningnewsfirstfilename.$lastfilenameSD.mkv -o ~/cbseveningnews-SD.torrent
 echo 'If you see those 3 files and it didnt error out ask systemxd to make this autoload in your client next time'
 cp ~/cbseveningnews*.torrent ~/qwatch
+
+
+rm ~/nbcnightlynews-1080p.torrent ~/nbcnightlynews-720p.torrent ~/nbcnightlynews-SD.torrent
+rm ~/working/nbcnightlynews*
+echo 'I am putting the three .torrent files in your home directory'
+mktorrent -p -s BTN -a $announce -l 21 $cbseveningnewsfirstfilename.$lastfilename1080p.mkv -o ~/cbseveningnews-1080p.torrent
+mktorrent -p -s BTN -a $announce -l 21 $cbseveningnewsfirstfilename.$lastfilename720p.mkv -o ~/cbseveningnews-720p.torrent
+mktorrent -p -s BTN -a $announce -l 19 $cbseveningnewsfirstfilename.$lastfilenameSD.mkv -o ~/cbseveningnews-SD.torrent
+echo 'If you see those 3 files and it didnt error out ask systemxd to make this autoload in your client next time'
+cp ~/cbseveningnews*.torrent ~/qwatch
+
+
 
 
 
