@@ -33,39 +33,41 @@ fi
 echo 'When I ask for First part filename, I want <CBS.Evening.News.2021.01.12>, not the resolution, codec, or group'
 echo 'This is because this command generates 1080p, 720p, and SD resolutions. I need to split first and last part as resolutions is handled automatically'
 echo 'press ctl+c and bug shitstemxd if you dont know what I just said'
-read -p 'First part of filename: ' firstfilename
+read -p 'First part of filename: ' cbseveningnewsfirstfilename
 
 mediainfo cbseveningnews1080p.mkv
 echo 'This is the mediainfo. Now I want the last part of the filename, <1080p.CBS.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
-read -p 'Last part of filename 1080p: ' lastfilename1080p
+read -p 'Last part of filename 1080p: ' cbseveningnewslastfilename1080p
 #
 mediainfo cbseveningnews720p.mkv
 echo 'This is the mediainfo. Now I want the last part of the filename, <720p.CBS.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
-read -p 'Last part of filename 720p: ' lastfilename720p
+read -p 'Last part of filename 720p: ' cbseveningnewslastfilename720p
 #
 mediainfo cbseveningnewsSD.mkv
 echo 'This is the mediainfo. Now I want the last part of the filename, <CBS.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
-read -p 'Last part of filename SD: ' lastfilenameSD
-mv cbseveningnews1080p.mkv $firstfilename.$lastfilename1080p.mkv
-mv cbseveningnews720p.mkv $firstfilename.$lastfilename720p.mkv
-mv cbseveningnewsSD.mkv $firstfilename.$lastfilenameSD.mkv
-mediainfo $firstfilename.$lastfilename1080p.mkv > mediainfo.$firstfilename.$lastfilename1080p.txt
-mediainfo $firstfilename.$lastfilename720p.mkv > mediainfo.$firstfilename.$lastfilename720p.txt
-mediainfo $firstfilename.$lastfilenameSD.mkv > mediainfo.$firstfilename.$lastfilenameSD.txt
+read -p 'Last part of filename SD: ' cbseveningnewslastfilenameSD
+
+
+mv cbseveningnews1080p.mkv $cbseveningnewsfirstfilename.$cbseveningnewslastfilename1080p.mkv
+mv cbseveningnews720p.mkv $cbseveningnewsfirstfilename.$cbseveningnewslastfilename720p.mkv
+mv cbseveningnewsSD.mkv $cbseveningnewsfirstfilename.$cbseveningnewslastfilenameSD.mkv
+mediainfo $cbseveningnewsfirstfilename.$lastfilename1080p.mkv > mediainfo.$cbseveningnewsfirstfilename.$cbseveningnewslastfilename1080p.txt
+mediainfo $cbseveningnewsfirstfilename.$lastfilename720p.mkv > mediainfo.$cbseveningnewsfirstfilename.$cbseveningnewslastfilename720p.txt
+mediainfo $cbseveningnewsfirstfilename.$lastfilenameSD.mkv > mediainfo.$cbseveningnewsfirstfilename.$cbseveningnewslastfilenameSD.txt
+
+
+echo 'go grab your announce url from the btn page, I can make it know this but right now it doesnt as I dont know your announce url'
+read -p 'announceurl: ' announce
+
+
+rm ~/cbseveningnews-1080p.torrent ~/cbseveningnews-720p.torrent ~/cbseveningnews-SD.torrent
+rm ~/working/cbseveningnews*
+echo 'I am putting the three .torrent files in your home directory'
+mktorrent -p -s BTN -a $announce -l 21 $firstfilename.$lastfilename1080p.mkv -o ~/cbseveningnews-1080p.torrent
+mktorrent -p -s BTN -a $announce -l 21 $firstfilename.$lastfilename720p.mkv -o ~/cbseveningnews-720p.torrent
+mktorrent -p -s BTN -a $announce -l 19 $firstfilename.$lastfilenameSD.mkv -o ~/cbseveningnews-SD.torrent
+echo 'If you see those 3 files and it didnt error out ask systemxd to make this autoload in your client next time'
+cp ~/cbseveningnews*.torrent ~/qwatch
 
 
 
-echo 'https://www.nbcnews.com/nightly-news'
-read -p 'cbs nightly news link: ' cbslink
-echo 'paste in the highest http-XXXX for best bitrate. I am dumb so I cant parse yet'
-echo 'Listen, this is important. If you see error 401 m3 forbidden this is a non usa ip. If you see this on the next step ctl+c me and grab a proxy on https://www.us-proxy.org/'
-read -p 'type "--proxy 123.123.123.123:1234" without quotes if you need, leave blank if you dont see 401 Forbidden : ' proxy
-youtube-dl $proxy -F $cbslink
-read -p 'best 1080p http-XXXX: ' best1080p
-read -p 'best 720p http-XXXX: ' best720p
-read -p 'best SD http-XXXX: ' bestSD
-
-
-youtube-dl $proxy -f $best1080p --all-subs --convert-subs srt --merge-output-format mkv $link --output 1080p
-youtube-dl $proxy -f $best720p --all-subs --convert-subs srt --merge-output-format mkv $link --output 720p
-youtube-dl $proxy -f $bestSD --all-subs --convert-subs srt --merge-output-format mkv $link --output SD
