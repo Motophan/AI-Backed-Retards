@@ -18,7 +18,7 @@ read -p 'best SD http-XXXX: ' cbsevningnewsbestSD
 
 
 echo 'https://www.nbcnews.com/nightly-news'
-read -p 'cbs nightly news link: ' nbcnightlynewslink
+read -p 'nbc nightly news link: ' nbcnightlynewslink
 echo 'paste in the highest http-XXXX for best bitrate. I am dumb so I cant parse yet'
 echo 'Listen, this is important. If you see error 401 m3 forbidden this is a non usa ip. If you see this on the next step ctl+c me and grab a proxy on https://www.us-proxy.org/'
 read -p 'type "--proxy 123.123.123.123:1234" without quotes if you need, leave blank if you dont see 401 Forbidden : ' proxy
