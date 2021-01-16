@@ -16,9 +16,9 @@ read -p 'best 1080p http-XXXX: ' cbsevningnewsbest1080p
 read -p 'best 720p http-XXXX: ' cbsevningnewsbest720p
 read -p 'best SD http-XXXX: ' cbsevningnewsbestSD
 
-youtube-dl $proxy -f $cbsevningnewsbest1080p --all-subs --convert-subs srt --merge-output-format mkv $link --output cbseveningnews1080p
-youtube-dl $proxy -f $cbsevningnewsbest720p --all-subs --convert-subs srt --merge-output-format mkv $link --output cbseveningnews720p
-youtube-dl $proxy -f $cbsevningnewsbestSD --all-subs --convert-subs srt --merge-output-format mkv $link --output cbseveningnewsSD
+youtube-dl $proxy -f $cbsevningnewsbest1080p --all-subs --convert-subs srt --merge-output-format mkv $cbseveningnewslink --output cbseveningnews1080p
+youtube-dl $proxy -f $cbsevningnewsbest720p --all-subs --convert-subs srt --merge-output-format mkv $cbseveningnewslink --output cbseveningnews720p
+youtube-dl $proxy -f $cbsevningnewsbestSD --all-subs --convert-subs srt --merge-output-format mkv $cbseveningnewslink --output cbseveningnewsSD
 
 CBSSUB1=cbseveningnews1080p.en.srt
 if [ -f "$CBSSUB1" ]; then
