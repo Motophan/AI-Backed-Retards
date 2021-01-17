@@ -119,7 +119,7 @@ mediainfo $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilenameSD.mkv > media
 echo 'go grab your announce url from the btn page, I can make it know this but right now it doesnt as I dont know your announce url'
 read -p 'announceurl: ' announce
 
-rm ~/cbseveningnews*.torrent 
+rm ~/*.torrent
 rm ~/working/cbseveningnews*
 echo 'I am putting the three .torrent files in your home directory'
 mktorrent -p -s BTN -a $announce -l 21 $cbseveningnewsfirstfilename.$cbseveningnewslastfilename1080p.mkv -o ~/cbseveningnews-1080p.torrent
@@ -128,7 +128,6 @@ mktorrent -p -s BTN -a $announce -l 19 $cbseveningnewsfirstfilename.$cbseveningn
 echo 'If you see those 3 files and it didnt error out ask systemxd to make this autoload in your client next time'
 cp ~/cbseveningnews*.torrent ~/qwatch
 
-rm ~/nbcnightlynews-1080p.torrent ~/nbcnightlynews-720p.torrent ~/nbcnightlynews-SD.torrent
 rm ~/working/nbcnightlynews*
 echo 'I am putting the three .torrent files in your home directory'
 mktorrent -p -s BTN -a $announce -l 21 $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename1080p.mkv -o ~/nbcnightlynews-1080p.torrent
