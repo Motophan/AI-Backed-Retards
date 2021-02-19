@@ -41,4 +41,4 @@ labels:
       
 You dont actually need the last line. Traefik is properly setup so its pretty good about figuring itself out. If it fails, just explicitly set the port. Whatever.
 
-[img]https://piracy.store/images/2021/02/19/firefox_Ql1esXFxaG.png[/img]
+<img>https://piracy.store/images/2021/02/19/firefox_Ql1esXFxaG.png</img>
