@@ -1,0 +1,22 @@
+entryPoints:
+  web:
+    address: :80
+  websecure:
+    address: :443
+providers:
+  docker: # Enables docker to be a provider from its labels
+    exposedByDefault: false # Not expose by default docker containers
+  file: # Reads all files located in /etc/traefik/*
+    watch: true
+    directory: "/etc/traefik/"
+certificatesResolvers: # Certs handler/resolver
+  resolver:
+    acme:
+      email: ligma@gmail.com
+      storage: "/letsencrypt/acme.json"
+#      tlsChallenge: true #if you use CF cdn you must do a dns challange, all other challenges will fail.
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 0
+
+api: # Enables traefik ui dashboard and api
