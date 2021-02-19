@@ -40,5 +40,5 @@ labels:
  ```
       
 You dont actually need the last line. Traefik is properly setup so its pretty good about figuring itself out. If it fails, just explicitly set the port. Whatever.
+![firefox_Ql1esXFxaG](https://user-images.githubusercontent.com/42502676/108480346-4fac4f80-7243-11eb-907b-804d6479ffcd.png)
 
-<img>https://piracy.store/images/2021/02/19/firefox_Ql1esXFxaG.png</img>
