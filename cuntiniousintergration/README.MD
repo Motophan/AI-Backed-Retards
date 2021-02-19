@@ -19,7 +19,7 @@ Unraid -> no ipv6, very very difficult to fix, devs dont care, nonfree
 
 
 How to use:
-
+0- pull this repo (preferably to ~/docker) 
 1- edit .env file to reflect your setup
 run `id` and make the PUID = your ID, and the GUID = dockers ID
 this is so your containers run in usermode
