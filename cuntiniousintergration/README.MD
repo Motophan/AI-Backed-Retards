@@ -35,7 +35,8 @@ this is so your containers run in usermode
       - "traefik.http.routers.appname.tls.options=default"
 #      - "traefik.http.services.appname.loadbalancer.server.port=80"
     networks:
-      - yeetmaster```
+      - yeetmaster
+ ```
       
 You dont actually need the last line. Traefik is properly setup so its pretty good about figuring itself out. If it fails, just explicitly set the port. Whatever.
 
