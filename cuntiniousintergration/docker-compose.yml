@@ -1,0 +1,469 @@
+version: "3.3"
+networks:
+  yeetmaster:
+    driver: bridge
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+        - subnet: fd00:dead:beef::/48
+
+services:
+  traefik:
+    image: traefik:latest
+    restart: always
+    env_file:
+     - "./.env"
+    container_name: "traefik"
+    command:
+        - --configFile=/static.yaml # Initial config from static.yml file
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+      - "./traefik/static.yaml:/static.yaml"
+      - "./traefik/dynamic.yaml:/etc/traefik/dynamic.yaml"
+    environment:
+      - "CF_API_EMAIL:$CLOUDFLARE_EMAIL"
+      - "CF_API_KEY:$CLOUDFLARE_API_KEY"
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+    labels:
+      - "traefik.enable=true"
+
+      # Redirect to https Middleware
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+
+      # Security headers middleware
+      - "traefik.http.middlewares.security-headers.headers.stsSeconds=31536000" # 1 año
+      - "traefik.http.middlewares.security-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.security-headers.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.security-headers.headers.stsIncludeSubdomains=true"
+
+      # Rules and middlewares asociation with entrypoints
+      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)" # Catchs all request
+      - "traefik.http.routers.http-catchall.entrypoints=web" # Http middleware for web (http) entrypoint (see static.yaml file)
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https,security-headers" # Add redirect and security middlewares
+      - "traefik.http.routers.https-catchall.rule=hostregexp(`{host:.+}`)" # Catchs all request
+      - "traefik.http.routers.https-catchall.entrypoints=websecure" # Http middleware for websecure (https) entrypoint (see static.yaml file)
+      - "traefik.http.routers.https-catchall.middlewares=security-headers" # add security middleware
+
+      # Secure Dashboard
+      - "traefik.http.routers.traefik-dash.service=api@internal"
+      - "traefik.http.routers.traefik-dash.middlewares=admin"
+      - "traefik.http.routers.traefik-dash.rule=Host(`traefik.$DOMAINNAME`)"
+      - "traefik.http.routers.traefik-dash.entrypoints=websecure"
+      - "traefik.http.routers.traefik-dash.tls=true"
+      - "traefik.http.routers.traefik-dash.tls.certresolver=resolver"
+      - "traefik.http.routers.traefik-dash.middlewares=security-headers"
+      - "traefik.http.routers.traefik-dash.tls.options=default"
+      # Basic auth for dashboard - user admin password admin
+      # Use [ echo $(htpasswd -nb user password) | sed -e s/\\$/\\$\\$/g ] to generate new password. Can do on other machine btw. 
+#      - traefik.http.middlewares.admin.basicauth.users=gentoo:$$apr1$$QxsZRvr.$$Z0OGu/44T6gkIth.5fQr6.
+    networks:
+      - yeetmaster
+  my-app:
+    restart: always
+    image: "containous/whoami"
+    env_file:
+     - "./.env"
+    container_name: "my-app"
+    volumes:
+      - "./path:/path"
+      - "$RAIDBOSS:/data"
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.my-app.rule=Host(`whoami.$DOMAINNAME`)"
+      - "traefik.http.routers.my-app.entrypoints=websecure"
+      - "traefik.http.routers.my-app.tls=true"
+      - "traefik.http.routers.my-app.tls.certresolver=resolver"
+      - "traefik.http.routers.my-app.middlewares=security-headers"
+      - "traefik.http.routers.my-app.tls.options=default"
+      - "traefik.http.services.my-app.loadbalancer.server.port=80"
+    networks:
+      - yeetmaster
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    restart: always
+    container_name: portainer
+    command: -H unix:///var/run/docker.sock
+    privileged: true
+    env_file:
+     - "./.env"
+    container_name: "portainer"
+    volumes:
+      - "./portainer:/data"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "/etc/timezone:/etc/timezone:ro"
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.$DOMAINNAME`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.tls.certresolver=resolver"
+      - "traefik.http.routers.portainer.middlewares=security-headers"
+      - "traefik.http.routers.portainer.tls.options=default"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+    networks:
+      - yeetmaster
+
+  sonarr:
+    container_name: sonarr
+    restart: always
+    image: ghcr.io/linuxserver/sonarr:preview
+    env_file:
+     - "./.env"
+    container_name: "sonarr"
+    volumes:
+      - "./sonarr:/config"
+      - "$RAIDBOSS:/data"
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.$DOMAINNAME`)"
+      - "traefik.http.routers.sonarr.entrypoints=websecure"
+      - "traefik.http.routers.sonarr.tls=true"
+      - "traefik.http.routers.sonarr.tls.certresolver=resolver"
+      - "traefik.http.routers.sonarr.middlewares=security-headers"
+      - "traefik.http.routers.sonarr.tls.options=default"
+    networks:
+      - yeetmaster
+
+radarr:
+    container_name: radarr
+    restart: always
+    image: ghcr.io/linuxserver/radarr:latest
+    env_file:
+     - "./.env"
+    container_name: "radarr"
+    volumes:
+      - "./radarr:/config"
+      - "$RAIDBOSS:/data"
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.$DOMAINNAME`)"
+      - "traefik.http.routers.radarr.entrypoints=websecure"
+      - "traefik.http.routers.radarr.tls=true"
+      - "traefik.http.routers.radarr.tls.certresolver=resolver"
+      - "traefik.http.routers.radarr.middlewares=security-headers"
+      - "traefik.http.routers.radarr.tls.options=default"
+    networks:
+      - yeetmaster
+
+  lidarr:
+    container_name: lidarr
+    restart: always
+    image: ghcr.io/linuxserver/lidarr:nightly
+    env_file:
+     - "./.env"
+    container_name: "lidarr"
+    volumes:
+      - "./lidarr:/config"
+      - "$RAIDBOSS:/data"
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lidarr.rule=Host(`lidarr.$DOMAINNAME`)"
+      - "traefik.http.routers.lidarr.entrypoints=websecure"
+      - "traefik.http.routers.lidarr.tls=true"
+      - "traefik.http.routers.lidarr.tls.certresolver=resolver"
+      - "traefik.http.routers.lidarr.middlewares=security-headers"
+      - "traefik.http.routers.lidarr.tls.options=default"
+    networks:
+      - yeetmaster
+
+  sabnzbd:
+    restart: always
+    container_name: sabnzbd
+    image: ghcr.io/linuxserver/sabnzbd:latest
+    env_file:
+     - "./.env"
+    container_name: "sabnzbd"
+    volumes:
+      - "./sabnzbd:/config"
+      - "$RAIDBOSS:/data"
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.$DOMAINNAME`)"
+      - "traefik.http.routers.sabnzbd.entrypoints=websecure"
+      - "traefik.http.routers.sabnzbd.tls=true"
+      - "traefik.http.routers.sabnzbd.tls.certresolver=resolver"
+      - "traefik.http.routers.sabnzbd.middlewares=security-headers"
+      - "traefik.http.routers.sabnzbd.tls.options=default"
+    networks:
+      - yeetmaster
+
+  bazarr:
+    container_name: bazarr
+    restart: always
+    image: ghcr.io/linuxserver/bazarr:latest
+    env_file:
+     - "./.env"
+    container_name: "bazarr"
+    volumes:
+      - "./bazarr:/config"
+      - "$RAIDBOSS:/data"
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bazarr.rule=Host(`bazarr.$DOMAINNAME`)"
+      - "traefik.http.routers.bazarr.entrypoints=websecure"
+      - "traefik.http.routers.bazarr.tls=true"
+      - "traefik.http.routers.bazarr.tls.certresolver=resolver"
+      - "traefik.http.routers.bazarr.middlewares=security-headers"
+      - "traefik.http.routers.bazarr.tls.options=default"
+    networks:
+      - yeetmaster
+
+  jellyfin:
+    container_name: jellyfin
+    restart: always
+    image: ghcr.io/linuxserver/jellyfin:latest
+    env_file:
+     - "./.env"
+    container_name: "jellyfin"
+    volumes:
+      - "./jellyfin:/config"
+      - "$RAIDBOSS:/data"
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/dri:/dev/dri #optional
+#      - /dev/vcsm:/dev/vcsm #optional
+#      - /dev/vchiq:/dev/vchiq #optional
+#      - /dev/video10:/dev/video10 #optional
+#      - /dev/video11:/dev/video11 #optional
+#      - /dev/video12:/dev/video12 #optional
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+      - "JELLYFIN_PublishedServerUrl:jellyfin.local.akpioneerllc.com"
+    labels:
+      - "gpus=all"
+      - "traefik.enable=true"
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.$DOMAINNAME`)"
+      - "traefik.http.routers.jellyfin.entrypoints=websecure"
+      - "traefik.http.routers.jellyfin.tls=true"
+      - "traefik.http.routers.jellyfin.tls.certresolver=resolver"
+      - "traefik.http.routers.jellyfin.middlewares=security-headers"
+      - "traefik.http.routers.jellyfin.tls.options=default"
+    networks:
+      - yeetmaster
+
+  jackett:
+    container_name: jackett
+    restart: always
+    image: ghcr.io/linuxserver/jackett:latest
+    env_file:
+     - "./.env"
+    container_name: "jackett"
+    volumes:
+      - "./jackett:/config"
+      - "$RAIDBOSS:/data"
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jackett.rule=Host(`jackett.$DOMAINNAME`)"
+      - "traefik.http.routers.jackett.entrypoints=websecure"
+      - "traefik.http.routers.jackett.tls=true"
+      - "traefik.http.routers.jackett.tls.certresolver=resolver"
+      - "traefik.http.routers.jackett.middlewares=security-headers"
+      - "traefik.http.routers.jackett.tls.options=default"
+    networks:
+      - yeetmaster
+
+  nzbhydra:
+    container_name: nzbhydra
+    image: ghcr.io/linuxserver/nzbhydra2:latest
+    env_file:
+     - "./.env"
+    container_name: "nzbhydra"
+    volumes:
+      - "./nzbhydra2:/config"
+      - "$RAIDBOSS:/data"
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nzbhydra.rule=Host(`nzbhydra.$DOMAINNAME`)"
+      - "traefik.http.routers.nzbhydra.entrypoints=websecure"
+      - "traefik.http.routers.nzbhydra.tls=true"
+      - "traefik.http.routers.nzbhydra.tls.certresolver=resolver"
+      - "traefik.http.routers.nzbhydra.middlewares=security-headers"
+      - "traefik.http.routers.nzbhydra.tls.options=default"
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=5076"
+    networks:
+      - yeetmaster
+
+  qbittorrent:
+    container_name: qbittorrent
+    restart: always
+    image: ghcr.io/linuxserver/qbittorrent:version-14.3.2.99202101080148-7233-0cbd15890ubuntu18.04.1
+    env_file:
+     - "./.env"
+    container_name: "qbittorrent"
+    ports:
+      - 41599:41599
+    volumes:
+      - "./qbittorrent:/config"
+      - "$RAIDBOSS:/data"
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.$DOMAINNAME`)"
+      - "traefik.http.routers.qbittorrent.entrypoints=websecure"
+      - "traefik.http.routers.qbittorrent.tls=true"
+      - "traefik.http.routers.qbittorrent.tls.certresolver=resolver"
+      - "traefik.http.routers.qbittorrent.middlewares=security-headers"
+      - "traefik.http.routers.qbittorrent.tls.options=default"
+      - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
+    networks:
+      - yeetmaster
+      
+  cloudflare:
+    container_name: cloudflare
+    restart: always
+    env_file:
+     - "./.env"
+    image: oznu/cloudflare-ddns:latest
+    volumes:
+      - "./cloudflare:/config"
+      - "$RAIDBOSS:/data"
+    environment:
+      - "API_KEY=$CLOUDFLARE_API_KEY"
+      - "ZONE=$DOMAINNAME"
+#      - "SUBDOMAIN="
+      - "PROXIED=false"
+      - EMAIL="CLOUDFLARE_EMAIL"
+      - CRON="@daily"
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+  scrutiny:
+    container_name: scrutiny
+    restart: always
+    env_file:
+     - "./.env"
+    image: analogj/scrutiny:latest
+    devices:
+      - /dev/sda:/dev/sda
+      - /dev/sdb:/dev/sdb
+      - /dev/sdc:/dev/sdc
+      - /dev/sdd:/dev/sdd
+      - /dev/sde:/dev/sde
+      - /dev/sdf:/dev/sdf
+      - /dev/sdg:/dev/sdg
+      - /dev/sdh:/dev/sdh
+      - /dev/sdi:/dev/sdi
+      - /dev/sdj:/dev/sdj
+      - /dev/sdk:/dev/sdk
+      - /dev/sdl:/dev/sdl
+      - /dev/nvme0n1:/dev/nvme0n1
+      - /dev/nvme1n1:/dev/nvme1n1
+    cap_add:
+      - SYS_RAWIO
+    volumes:
+      - "./scrutiny:/config"
+      - "$RAIDBOSS:/data"
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.scrutiny.rule=Host(`scrutiny.$DOMAINNAME`)"
+      - "traefik.http.routers.scrutiny.entrypoints=websecure"
+      - "traefik.http.routers.scrutiny.tls=true"
+      - "traefik.http.routers.scrutiny.tls.certresolver=resolver"
+      - "traefik.http.routers.scrutiny.middlewares=security-headers"
+      - "traefik.http.routers.scrutiny.tls.options=default"
+#useifautodiscoverydontwork      - "traefik.http.services.scrutiny.loascrutinyalancer.server.port=8080"
+    networks:
+      - yeetmaster
+
+  librespeed:
+    container_name: librespeed
+    restart: always
+    env_file:
+     - "./.env"
+    image: ghcr.io/linuxserver/librespeed:latest
+    volumes:
+      - "./librespeed:/config"
+      - "$RAIDBOSS:/data"
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.librespeed.rule=Host(`speedtest.$DOMAINNAME`)"
+      - "traefik.http.routers.librespeed.entrypoints=websecure"
+      - "traefik.http.routers.librespeed.tls=true"
+      - "traefik.http.routers.librespeed.tls.certresolver=resolver"
+      - "traefik.http.routers.librespeed.middlewares=security-headers"
+      - "traefik.http.routers.librespeed.tls.options=default"
+#useifautodiscoverydontwork      - "traefik.http.services.librespeed.loalibrespeedalancer.server.port=8080"
+    networks:
+      - yeetmaster
+
+  plex:
+    container_name: plex
+    restart: always
+    env_file:
+     - "./.env"
+    image: ghcr.io/linuxserver/plex:latest
+    network_mode: host
+    privileged: True
+    devices:
+      - "/dev/dri/:/dev/dri/"
+    volumes:
+      - "./plex:/config"
+      - "./plex/transcode:/transcode"
+      - "$RAIDBOSS:/data"
+    environment:
+      - "TZ:$TZ"
+      - "PUID:$PUID"
+      - "PGID:$PGID"
+      - "UMASK_SET:002"
+      - "VERSION:docker"
+      - "PLEX_CLAIM:$PLEX_CLAIM"
+    labels:
+      - "gpus=all"
+
