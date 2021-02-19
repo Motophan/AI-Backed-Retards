@@ -25,7 +25,8 @@ run `id` and make the PUID = your ID, and the GUID = dockers ID
 this is so your containers run in usermode
 
 2- add containers by copying and pasting the stuff. All you change for traefik is 
-```    labels:
+```
+labels:
       - "traefik.enable=true"
       - "traefik.http.routers.appname.rule=Host(`appname.$DOMAINNAME`)"
       - "traefik.http.routers.appname.entrypoints=websecure"
