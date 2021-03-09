@@ -266,7 +266,7 @@ radarr:
       - "TZ:$TZ"
       - "PUID:$PUID"
       - "PGID:$PGID"
-      - "JELLYFIN_PublishedServerUrl:jellyfin.local.akpioneerllc.com"
+      - "JELLYFIN_PublishedServerUrl:jellyfin.domain.tld"
     labels:
       - "gpus=all"
       - "traefik.enable=true"
