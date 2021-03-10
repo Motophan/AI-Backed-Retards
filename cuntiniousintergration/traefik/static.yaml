@@ -20,3 +20,5 @@ certificatesResolvers: # Certs handler/resolver
         delayBeforeCheck: 0
 
 api: # Enables traefik ui dashboard and api
+  insecure: true
+  dashboard: true
