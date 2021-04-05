@@ -1,0 +1,144 @@
+echo 'I am making the collowing assumptions. 1- your watch folder is ~/qwatch. 2- you are in ~/working, and 3- qbittorrent ~/qwatch folder is set to ~/working'
+echo 'If these are not true, please ctl + c this program and set this, or edit this program'
+echo 'I am going to download 1080p, 720p, and SD resolutions in the current directory, press ctl+c to stop me'
+echo 'I am stupid btw, I think all shows have 1080p versions, bug shitstemxd for one that can figure when he isnt busy'
+echo 'This script does everything at once, all shows TEPES runs daily. Run the OMNI script if you need a specific show.'
+
+
+
+echo 'https://www.cbsnews.com/evening-news/full-episodes/'
+read -p 'cbs nightly news link: ' cbseveningnewslink
+echo 'paste in the highest http-XXXX for best bitrate. I am dumb so I cant parse yet'
+echo 'Listen, this is important. If you see error 401 m3 forbidden this is a non usa ip. If you see this on the next step ctl+c me and grab a proxy on https://www.us-proxy.org/'
+
+echo 'https://www.nbcnews.com/nightly-news'
+read -p 'nbc nightly news link: ' nbcnightlynewslink
+
+
+
+
+youtube-dl -f 'best[height<=1080]' $cbsevningnewsbest1080p --all-subs --convert-subs srt --merge-output-format mkv $cbseveningnewslink --output cbseveningnews1080p
+youtube-dl -f 'best[height<=720]' $cbsevningnewsbest720p --all-subs --convert-subs srt --merge-output-format mkv $cbseveningnewslink --output cbseveningnews720p
+youtube-dl -f 'best[height<=576]' $cbsevningnewsbestSD --all-subs --convert-subs srt --merge-output-format mkv $cbseveningnewslink --output cbseveningnewsSD
+
+youtube-dl -f 'best[height<=1080]' $nbcnightlynewsbest1080p --all-subs --convert-subs srt --merge-output-format mkv $nbcnightlynewslink --output nbcnightlynews1080p
+youtube-dl -f 'best[height<=720]' $nbcnightlynewsbest720p --all-subs --convert-subs srt --merge-output-format mkv $nbcnightlynewslink --output nbcnightlynews720p
+youtube-dl -f 'best[height<=576]' $nbcnightlynewsbestSD --all-subs --convert-subs srt --merge-output-format mkv $nbcnightlynewslink --output nbcnightlynewsSD
+
+CBSSUB1=cbseveningnews1080p.en.srt
+if [ -f "$CBSSUB1" ]; then
+    mkvmerge -o cbseveningnews1080p.mkv cbseveningnews1080p --language 0:eng cbseveningnews1080p.en.srt
+    mkvmerge -o cbseveningnews720p.mkv cbseveningnews720p --language 0:eng cbseveningnews720p.en.srt
+    mkvmerge -o cbseveningnewsSD.mkv cbseveningnewsSD --language 0:eng cbseveningnewsSD.en.srt
+    mkvpropedit cbseveningnews1080p.mkv --edit track:3 --set flag-default=0
+    mkvpropedit cbseveningnews720p.mkv --edit track:3 --set flag-default=0
+    mkvpropedit cbseveningnewsSD.mkv --edit track:3 --set flag-default=0
+    mkvpropedit cbseveningnews1080p.mkv --edit track:2 --set language=eng
+    mkvpropedit cbseveningnews720p.mkv --edit track:2 --set language=eng
+    mkvpropedit cbseveningnewsSD.mkv --edit track:2 --set language=eng
+else
+    mkvmerge -o cbseveningnews1080p.mkv cbseveningnews1080p
+    mkvmerge -o cbseveningnews720p.mkv cbseveningnews720p
+    mkvmerge -o cbseveningnewsSD.mkv cbseveningnewsSD
+    mkvpropedit cbseveningnews1080p.mkv --edit track:2 --set language=eng
+    mkvpropedit cbseveningnews720p.mkv --edit track:2 --set language=eng
+    mkvpropedit cbseveningnewsSD.mkv --edit track:2 --set language=eng
+
+fi
+echo 'When I ask for First part filename, I want <CBS.Evening.News.2021.01.12>, not the resolution, codec, or group'
+echo 'This is because this command generates 1080p, 720p, and SD resolutions. I need to split first and last part as resolutions is handled automatically'
+echo 'press ctl+c and bug shitstemxd if you dont know what I just said'
+read -p 'First part of filename: ' cbseveningnewsfirstfilename
+
+mediainfo cbseveningnews1080p.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <1080p.CBS.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename 1080p: ' cbseveningnewslastfilename1080p
+#
+mediainfo cbseveningnews720p.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <720p.CBS.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename 720p: ' cbseveningnewslastfilename720p
+#
+mediainfo cbseveningnewsSD.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <CBS.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename SD: ' cbseveningnewslastfilenameSD
+
+
+mv cbseveningnews1080p.mkv $cbseveningnewsfirstfilename.$cbseveningnewslastfilename1080p.mkv
+mv cbseveningnews720p.mkv $cbseveningnewsfirstfilename.$cbseveningnewslastfilename720p.mkv
+mv cbseveningnewsSD.mkv $cbseveningnewsfirstfilename.$cbseveningnewslastfilenameSD.mkv
+mediainfo $cbseveningnewsfirstfilename.$cbseveningnewslastfilename1080p.mkv > mediainfo.$cbseveningnewsfirstfilename.$cbseveningnewslastfilename1080p.txt
+mediainfo $cbseveningnewsfirstfilename.$cbseveningnewslastfilename720p.mkv > mediainfo.$cbseveningnewsfirstfilename.$cbseveningnewslastfilename720p.txt
+mediainfo $cbseveningnewsfirstfilename.$cbseveningnewslastfilenameSD.mkv > mediainfo.$cbseveningnewsfirstfilename.$cbseveningnewslastfilenameSD.txt
+
+
+
+NBCSUB1=nbcnightlynews1080p.en.srt
+if [ -f "$NBCSUB1" ]; then
+    mkvmerge -o nbcnightlynews1080p.mkv nbcnightlynews1080p --language 0:eng nbcnightlynews1080p.en.srt
+    mkvmerge -o nbcnightlynews720p.mkv nbcnightlynews720p --language 0:eng nbcnightlynews720p.en.srt
+    mkvmerge -o nbcnightlynewsSD.mkv nbcnightlynewsSD --language 0:eng nbcnightlynewsSD.en.srt
+    mkvpropedit nbcnightlynews1080p.mkv --edit track:3 --set flag-default=0
+    mkvpropedit nbcnightlynews720p.mkv --edit track:3 --set flag-default=0
+    mkvpropedit nbcnightlynewsSD.mkv --edit track:3 --set flag-default=0
+    mkvpropedit nbcnightlynews1080p.mkv --edit track:2 --set language=eng
+    mkvpropedit nbcnightlynews720p.mkv --edit track:2 --set language=eng
+    mkvpropedit nbcnightlynewsSD.mkv --edit track:2 --set language=eng
+else
+    mkvmerge -o nbcnightlynews1080p.mkv nbcnightlynews1080p
+    mkvmerge -o nbcnightlynews720p.mkv nbcnightlynews720p
+    mkvmerge -o nbcnightlynewsSD.mkv nbcnightlynewsSD
+    mkvpropedit nbcnightlynews1080p.mkv --edit track:2 --set language=eng
+    mkvpropedit nbcnightlynews720p.mkv --edit track:2 --set language=eng
+    mkvpropedit nbcnightlynewsSD.mkv --edit track:2 --set language=eng
+fi
+
+echo 'When I ask for First part filename, I want <NBC.Nightly.News.2021.01.12>, not the resolution, codec, or group'
+echo 'This is because this command generates 1080p, 720p, and SD resolutions. I need to split first and last part as resolutions is handled automatically'
+echo 'press ctl+c and bug shitstemxd if you dont know what I just said'
+read -p 'First part of filename: ' nbcnightlynewsfirstfilename
+
+mediainfo nbcnightlynews1080p.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <1080p.NBC.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename 1080p: ' nbcnightlynewslastfilename1080p
+#
+mediainfo nbcnightlynews720p.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <720p.NBC.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename 720p: ' nbcnightlynewslastfilename720p
+#
+mediainfo nbcnightlynewsSD.mkv
+echo 'This is the mediainfo. Now I want the last part of the filename, <NBC.WEB-DL.AAC2.0.x264-TEPES>, do not include mkv'
+read -p 'Last part of filename SD: ' nbcnightlynewslastfilenameSD
+
+
+mv nbcnightlynews1080p.mkv $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename1080p.mkv
+mv nbcnightlynews720p.mkv $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename720p.mkv
+mv nbcnightlynewsSD.mkv $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilenameSD.mkv
+mediainfo $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename1080p.mkv > mediainfo.$nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename1080p.txt
+mediainfo $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename720p.mkv > mediainfo.$nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename720p.txt
+mediainfo $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilenameSD.mkv > mediainfo.$nbcnightlynewsfirstfilename.$nbcnightlynewslastfilenameSD.txt
+
+
+echo 'go grab your announce url from the btn page, I can make it know this but right now it doesnt as I dont know your announce url'
+#read -p 'announceurl: ' announce
+
+#rm ~/nbcnightlynews-1080p.torrent ~/nbcnightlynews-720p.torrent ~/nbcnightlynews-SD.torrent
+rm ~/*.torrent
+rm ~/working/cbseveningnews*
+echo 'I am putting the three .torrent files in your home directory'
+mktorrent -p -s BTN -a https://landof.tv/f0rk4t7pz2p4xj61fs0ui7vnjto2o2rr/announce -l 21 $cbseveningnewsfirstfilename.$cbseveningnewslastfilename1080p.mkv -o ~/cbseveningnews-1080p.torrent
+mktorrent -p -s BTN -a https://landof.tv/f0rk4t7pz2p4xj61fs0ui7vnjto2o2rr/announce -l 21 $cbseveningnewsfirstfilename.$cbseveningnewslastfilename720p.mkv -o ~/cbseveningnews-720p.torrent
+mktorrent -p -s BTN -a https://landof.tv/f0rk4t7pz2p4xj61fs0ui7vnjto2o2rr/announce -l 19 $cbseveningnewsfirstfilename.$cbseveningnewslastfilenameSD.mkv -o ~/cbseveningnews-SD.torrent
+echo 'If you see those 3 files and it didnt error out ask systemxd to make this autoload in your client next time'
+#cp ~/cbseveningnews*.torrent ~/qwatch
+
+#rm ~/nbcnightlynews-1080p.torrent ~/nbcnightlynews-720p.torrent ~/nbcnightlynews-SD.torrent
+rm ~/working/nbcnightlynews*
+echo 'I am putting the three .torrent files in your home directory'
+mktorrent -p -s BTN -a https://landof.tv/f0rk4t7pz2p4xj61fs0ui7vnjto2o2rr/announce -l 21 $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename1080p.mkv -o ~/nbcnightlynews-1080p.torrent
+mktorrent -p -s BTN -a https://landof.tv/f0rk4t7pz2p4xj61fs0ui7vnjto2o2rr/announce -l 21 $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilename720p.mkv -o ~/nbcnightlynews-720p.torrent
+mktorrent -p -s BTN -a https://landof.tv/f0rk4t7pz2p4xj61fs0ui7vnjto2o2rr/announce -l 19 $nbcnightlynewsfirstfilename.$nbcnightlynewslastfilenameSD.mkv -o ~/nbcnightlynews-SD.torrent
+echo 'If you see those 3 files and it didnt error out ask systemxd to make this autoload in your client next time'
+#cp ~/nbcnightlynews*.torrent ~/qwatch
+cp *.torrent ~/.torrents
+rclone copy -vvP ~/working 10g:working
+#rclone copy -vvP ~/.torrents/ 10g:qwatch
