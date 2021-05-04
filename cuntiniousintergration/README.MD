@@ -7,7 +7,7 @@ The least bad of all of them is probabally swizzin, use that.
 
 Cloudbox -> permbanned me from their discord when I pushed hard for a traefik fork and explained why they broke ipv6. I was not polite, I regret this. 
 That being said, I am no longer welcome with them. This is what I stole/made to make some working implementation they could throw into ansible.
-Rumor has it they are not going to traefik. :/ 
+Rumor has it they are now going to traefik. :/ 
 
 Swizzin -> nginx backends are 127.0.0.1 so IPv6 """"""""works""""""" with a asterisk the size of the planet jupider. Its not ideal.
 
